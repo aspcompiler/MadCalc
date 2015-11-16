@@ -11,10 +11,10 @@ namespace MadCalc
 {
     public class Calculator
     {
-        public double Calculate(string opeartion, string operants)
+        public double Calculate(string operation, string operants)
         {
             double[] ops = operants.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries).Select(s => double.Parse(s)).ToArray();
-            switch (opeartion)
+            switch (operation)
             {
                 case "+":
                     return Add(ops[0], ops[1]);
@@ -27,7 +27,7 @@ namespace MadCalc
                 default:
                     if (_reflectionAddIns != null)
                     {
-                        string method = _reflectionAddIns[opeartion];
+                        string method = _reflectionAddIns[operation];
                         if (method != null)
                         {
                             return (double)ReflectionUtilities.Execute(method, ops.Cast<object>().ToArray());
@@ -35,7 +35,7 @@ namespace MadCalc
                     }
                     if (_dllAddIns != null)
                     {
-                        string className = _dllAddIns[opeartion];
+                        string className = _dllAddIns[operation];
                         if (className != null)
                         {
                             //string[] parts = className.Split(',');
@@ -48,20 +48,20 @@ namespace MadCalc
                     }
                     if (_scriptAddIns != null)
                     {
-                        string script = _scriptAddIns[opeartion];
+                        string script = _scriptAddIns[operation];
                         if (script != null)
                         {
                             MethodInfo mi = null;
-                            _scriptCodes.TryGetValue(opeartion, out mi);
+                            _scriptCodes.TryGetValue(operation, out mi);
                             if (mi == null)
                             {
                                 mi = RoslynUtilities.GenerateMethod(script);
-                                _scriptCodes[opeartion] = mi;
+                                _scriptCodes[operation] = mi;
                             }
                             return (double)mi.Invoke(null, ops.Cast<object>().ToArray());
                         }
                     }
-                    throw new NotImplementedException(opeartion + " not implemented.");
+                    throw new NotImplementedException(operation + " not implemented.");
             }
         }
 
